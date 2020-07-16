@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>IA Chess</title>
+</head>
+  <script src="pixi/pixi.min.js"></script>
+<body>
+  <script type="text/javascript">
+    let type = "WebGL"
+    if(!PIXI.utils.isWebGLSupported()){
+      type = "canvas"
+    }
+
+    PIXI.utils.sayHello(type)
+
+
+    //Create a Pixi Application
+    let app = new PIXI.Application({ 
+        width: 856,         // default: 800
+        height: 856,        // default: 600
+        antialias: false,    // default: false
+        transparent: false, // default: false
+        resolution: 1       // default: 1
+    });
+
+
+    //Add the canvas that Pixi automatically created for you to the HTML document
+    document.body.appendChild(app.view);
+
+    //load an image and run the `setup` function when it's done
+    PIXI.loader
+    .add(["./resources/board/107.png",
+          "./resources/pieces/bb.png",
+          "./resources/pieces/bk.png",
+          "./resources/pieces/bn.png",
+          "./resources/pieces/bp.png",
+          "./resources/pieces/bq.png",
+          "./resources/pieces/br.png",
+          "./resources/pieces/wb.png",
+          "./resources/pieces/wk.png",
+          "./resources/pieces/wn.png",
+          "./resources/pieces/wp.png",
+          "./resources/pieces/wq.png",
+          "./resources/pieces/wr.png",
+    ])
+    .load(setup);
+
+    let listPieces = ["bb", "bk", "bn", "bp", "bq", "br", "wb", "wk", "wn", "wq", "wr"];
+    let pieces = {}
+    //This `setup` function will run when the image has loaded
+    function setup() {
+        let board = new PIXI.Sprite(PIXI.loader.resources["./resources/board/107.png"].texture);
+        app.stage.addChild(board);
+        // black pieces
+        let br1 = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/br.png"].texture);
+        app.stage.addChild(br1);
+        let br2 = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/br.png"].texture);
+        br2.position.set(7*107,0);
+        app.stage.addChild(br2);
+
+    }
+
+  </script>
+</body>
+</html>
