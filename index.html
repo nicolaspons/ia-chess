@@ -21,7 +21,7 @@
         height: 856,        // default: 600
         antialias: false,    // default: false
         transparent: false, // default: false
-        resolution: 1       // default: 1
+        resolution: 0.9      // default: 1
     });
 
 
@@ -46,20 +46,65 @@
     ])
     .load(setup);
 
-    let listPieces = ["bb", "bk", "bn", "bp", "bq", "br", "wb", "wk", "wn", "wq", "wr"];
+    let blackPieces = ["br", "bn", "bb"];
+    let whitePieces = ["wr", "wn", "wb"];
     let pieces = {}
+    var selectedPiece;
+    function onDown(eventData, piece) {
+        console.log(eventData.data.global.x);
+        console.log(eventData.data.global.y);
+        pieces[piece].position.set(eventData.x, eventData.y);
+    }
+
     //This `setup` function will run when the image has loaded
     function setup() {
         let board = new PIXI.Sprite(PIXI.loader.resources["./resources/board/107.png"].texture);
         app.stage.addChild(board);
         // black pieces
-        let br1 = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/br.png"].texture);
-        app.stage.addChild(br1);
-        let br2 = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/br.png"].texture);
-        br2.position.set(7*107,0);
-        app.stage.addChild(br2);
+        for (var i = 0; i < blackPieces.length; ++i) {
+            pieces[blackPieces[i]+"1"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/"+blackPieces[i]+".png"].texture);
+            pieces[blackPieces[i]+"2"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/"+blackPieces[i]+".png"].texture);
+            pieces[blackPieces[i]+"1"].position.set(i*107, 0);
+            pieces[blackPieces[i]+"2"].position.set((7-i)*107, 0);
+            app.stage.addChild(pieces[blackPieces[i]+"1"]);
+            app.stage.addChild(pieces[blackPieces[i]+"2"]);
+        }
+        for (var i = 0; i < 8; ++i) {
+            pieces["bp"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/bp.png"].texture);
+            pieces["bp"].position.set(i*107, 107);
+            app.stage.addChild(pieces["bp"]);
+        }
+        pieces["bq"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/bq.png"].texture);
+        pieces["bq"].position.set(3*107, 0);
+        app.stage.addChild(pieces["bq"]);
+        pieces["bk"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/bk.png"].texture);
+        pieces["bk"].position.set(4*107, 0);
+        app.stage.addChild(pieces["bk"]);
 
+        // white pieces
+        for (var i = 0; i < whitePieces.length; ++i) {
+            pieces[whitePieces[i]+"1"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/"+whitePieces[i]+".png"].texture);
+            pieces[whitePieces[i]+"2"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/"+whitePieces[i]+".png"].texture);
+            pieces[whitePieces[i]+"1"].position.set(i*107, 7*107);
+            pieces[whitePieces[i]+"2"].position.set((7-i)*107, 7*107);
+            app.stage.addChild(pieces[whitePieces[i]+"1"]);
+            app.stage.addChild(pieces[whitePieces[i]+"2"]);
+        }
+        for (var i = 0; i < 8; ++i) {
+            pieces["wp"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/wp.png"].texture);
+            pieces["wp"].position.set(i*107, 6*107);
+            app.stage.addChild(pieces["wp"]);
+        }
+        pieces["wq"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/wq.png"].texture);
+        pieces["wq"].position.set(3*107, 7*107);
+        app.stage.addChild(pieces["wq"]);
+        pieces["wk"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/wk.png"].texture);
+        pieces["wk"].position.set(4*107, 7*107);
+        pieces["wk"].interactive = true;
+        pieces["wk"].on('mousedown', function(eventData) {selectedPiece = "wk"});
+        app.stage.addChild(pieces["wk"]);
     }
+
 
   </script>
 </body>
