@@ -7,13 +7,63 @@
   <script src="pixi/pixi.min.js"></script>
 <body>
   <script type="text/javascript">
-    let type = "WebGL"
-    if(!PIXI.utils.isWebGLSupported()){
-      type = "canvas"
+    
+    const Side = {
+        BLACK: -1,
+        WHITE: 1
     }
 
-    PIXI.utils.sayHello(type)
-
+    class Piece {
+        constructor(Side, position, name) {
+            this.side = Side;
+            this.position = position;
+            this.moves = [];
+            this.directions = [];
+            this.sprite = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/"+name+".png"].texture);
+            this.sprite.position.set(position[0]*107, position[1]*107);
+            app.stage.addChild(this.sprite);
+        }
+    }
+    class King extends Piece {
+        constructor(Side, position, name) {
+            super(Side, position, name);
+            this.moves = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+        }
+    }
+    class Queen extends Piece {
+        constructor(Side, position, name) {
+            super(Side, position, name);
+            this.moves = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+            this.directions = [1, 2, 3, 4, 5, 6, 7, 8];
+        }
+    }
+    class Rook extends Piece {
+        constructor(Side, position, name) {
+            super(Side, position, name);
+            this.moves = [[-1, 0], [0, -1], [0, 1], [1, 0]];
+            this.directions = [2, 4, 5, 7];
+        }
+    }
+    class Bishop extends Piece {
+        constructor(Side, position, name) {
+            super(Side, position, name);
+            this.moves = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+            this.directions = [1, 3, 6, 8];
+        }
+    }
+    class Knight extends Piece {
+        constructor(Side, position, name) {
+            super(Side, position, name);
+            this.moves = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+        }
+    }
+    class Panw extends Piece {
+        constructor(Side, position, name) {
+            super(Side, position, name);
+            this.moves = [[0, Side[this.side] * -1], [0, Side[this.side] * -2]];
+            this.canTake = [[-1, Side[this.side] * -1], [1, Side[this.side] * -1]];
+        }
+    }
 
     //Create a Pixi Application
     let app = new PIXI.Application({ 
@@ -23,7 +73,6 @@
         transparent: false, // default: false
         resolution: 0.9      // default: 1
     });
-
 
     //Add the canvas that Pixi automatically created for you to the HTML document
     document.body.appendChild(app.view);
@@ -46,10 +95,8 @@
     ])
     .load(setup);
 
-    let blackPieces = ["br", "bn", "bb"];
-    let whitePieces = ["wr", "wn", "wb"];
-    let pieces = {}
-    var selectedPiece;
+    let blackPieces = [];
+    let whitePieces = [];
     function onDown(eventData, piece) {
         console.log(eventData.data.global.x);
         console.log(eventData.data.global.y);
@@ -61,48 +108,25 @@
         let board = new PIXI.Sprite(PIXI.loader.resources["./resources/board/107.png"].texture);
         app.stage.addChild(board);
         // black pieces
-        for (var i = 0; i < blackPieces.length; ++i) {
-            pieces[blackPieces[i]+"1"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/"+blackPieces[i]+".png"].texture);
-            pieces[blackPieces[i]+"2"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/"+blackPieces[i]+".png"].texture);
-            pieces[blackPieces[i]+"1"].position.set(i*107, 0);
-            pieces[blackPieces[i]+"2"].position.set((7-i)*107, 0);
-            app.stage.addChild(pieces[blackPieces[i]+"1"]);
-            app.stage.addChild(pieces[blackPieces[i]+"2"]);
-        }
-        for (var i = 0; i < 8; ++i) {
-            pieces["bp"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/bp.png"].texture);
-            pieces["bp"].position.set(i*107, 107);
-            app.stage.addChild(pieces["bp"]);
-        }
-        pieces["bq"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/bq.png"].texture);
-        pieces["bq"].position.set(3*107, 0);
-        app.stage.addChild(pieces["bq"]);
-        pieces["bk"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/bk.png"].texture);
-        pieces["bk"].position.set(4*107, 0);
-        app.stage.addChild(pieces["bk"]);
-
+        blackPieces.push(new Rook(Side.BLACK, [0, 0], "br"));
+        blackPieces.push(new Rook(Side.BLACK, [7, 0], "br"));
+        blackPieces.push(new Rook(Side.BLACK, [1, 0], "bb"));
+        blackPieces.push(new Rook(Side.BLACK, [6, 0], "bb"));
+        blackPieces.push(new Rook(Side.BLACK, [2, 0], "bn"));
+        blackPieces.push(new Rook(Side.BLACK, [5, 0], "bn"));
+        blackPieces.push(new Rook(Side.BLACK, [3, 0], "bq"));
+        blackPieces.push(new Rook(Side.BLACK, [4, 0], "bk"));
+        for (var i = 0; i < 8; ++i) {blackPieces.push(new Panw(Side.BLACK, [i, 1], "bp"));}
         // white pieces
-        for (var i = 0; i < whitePieces.length; ++i) {
-            pieces[whitePieces[i]+"1"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/"+whitePieces[i]+".png"].texture);
-            pieces[whitePieces[i]+"2"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/"+whitePieces[i]+".png"].texture);
-            pieces[whitePieces[i]+"1"].position.set(i*107, 7*107);
-            pieces[whitePieces[i]+"2"].position.set((7-i)*107, 7*107);
-            app.stage.addChild(pieces[whitePieces[i]+"1"]);
-            app.stage.addChild(pieces[whitePieces[i]+"2"]);
-        }
-        for (var i = 0; i < 8; ++i) {
-            pieces["wp"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/wp.png"].texture);
-            pieces["wp"].position.set(i*107, 6*107);
-            app.stage.addChild(pieces["wp"]);
-        }
-        pieces["wq"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/wq.png"].texture);
-        pieces["wq"].position.set(3*107, 7*107);
-        app.stage.addChild(pieces["wq"]);
-        pieces["wk"] = new PIXI.Sprite(PIXI.loader.resources["./resources/pieces/wk.png"].texture);
-        pieces["wk"].position.set(4*107, 7*107);
-        pieces["wk"].interactive = true;
-        pieces["wk"].on('mousedown', function(eventData) {selectedPiece = "wk"});
-        app.stage.addChild(pieces["wk"]);
+        whitePieces.push(new Rook(Side.WHITE, [0, 7], "wr"));
+        whitePieces.push(new Rook(Side.WHITE, [7, 7], "wr"));
+        whitePieces.push(new Rook(Side.WHITE, [1, 7], "wb"));
+        whitePieces.push(new Rook(Side.WHITE, [6, 7], "wb"));
+        whitePieces.push(new Rook(Side.WHITE, [2, 7], "wn"));
+        whitePieces.push(new Rook(Side.WHITE, [5, 7], "wn"));
+        whitePieces.push(new Rook(Side.WHITE, [3, 7], "wq"));
+        whitePieces.push(new Rook(Side.WHITE, [4, 7], "wk"));
+        for (var i = 0; i < 8; ++i) {whitePieces.push(new Panw(Side.WHITE, [i, 6], "wp"));}s
     }
 
 
